@@ -5,6 +5,8 @@
 parent=TROPICO05
 child=CALEDO10a
 TMPDIR=/mnt/meom/workdir/alberta/CALEDO/NESTING_${parent}-${child}
+
+echo "creating TMPDIR : $TMPDIR"
 mkdir -p $TMPDIR
 
 latmin=-26.3
@@ -19,6 +21,7 @@ parent_mesh=/mnt/meom/workdir/brodeau/TROPICO05/TROPICO05-I/mesh_mask_TROPICO05_
 parent_bathy_meter=/mnt/meom/workdir/brodeau/TROPICO05/TROPICO05-I/bathy_meter_TROPICO05.nc
 parent_domain=/mnt/meom/workdir/brodeau/TROPICO05/TROPICO05-I/domain_cfg_L31_trunk_TROPICO05.nc
 
+echo "linking parent grid files"
 ln -sf ${parent_coord} $TMPDIR/coordinates.nc
 ln -sf ${parent_mesh} $TMPDIR/meshmask.nc
 ln -sf ${parent_bathy_meter} $TMPDIR/bathy_meter.nc
@@ -30,6 +33,7 @@ ln -sf ${parent_domain} $TMPDIR/domain_cfg.nc
 bathy_hr=/mnt/meom/workdir/brodeau/data/bathy/Caledo_team/test_MNT.nc4
 name_hr=Depth
 
+echo "linking high resolution bathymetry"
 ln -sf ${bathy_hr} $TMPDIR/bathy_hr.nc
 
 
@@ -43,7 +47,8 @@ agrif_restart=/mnt/meom/workdir/alberta/NEMO/release-4.0/tools/NESTING/agrif_cre
 #Namelist
 
 namelist=namelist_caledo10
-          
+
+echo "getting the coordinates of child grid within parent grid"          
 cdffindij -w $lonmin $lonmax $latmin $latmax -c $parent_mesh > $TMPDIR/cdffindij-out.txt
 
 imin=$(tail -2 $TMPDIR/cdffindij-out.txt | head -1 | awk '{print $1}')
@@ -68,6 +73,7 @@ pa2=0 #999999.
 ppkth2=0 #999999.  
 ppacr2=0 #999999.  
 
+echo "prepping the namelist" 
 cp /mnt/meom/workdir/alberta/NEMO/release-4.0/tools/NESTING/tmp_namelist $TMPDIR/$namelist
 
 
@@ -92,8 +98,8 @@ sed -i "s/LDBLETANH/$ldbletanh/g"        $TMPDIR/$namelist
 sed -i "s/PA2/$pa2/g"                    $TMPDIR/$namelist
 
 #Running nesting tools
-
-cd TMPDIR
+echo "running the nesting tools" 
+cd $TMPDIR
 
 $agrif_coord $namelist
 $agrif_bathy $namelist
